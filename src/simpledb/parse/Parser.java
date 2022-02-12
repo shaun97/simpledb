@@ -68,11 +68,19 @@ public class Parser {
       lex.eatKeyword("from");
       Collection<String> tables = tableList();
       Predicate pred = new Predicate();
+      List<OrderInfo> orderInfos = new ArrayList<OrderInfo>();
       if (lex.matchKeyword("where")) {
          lex.eatKeyword("where");
          pred = predicate();
       }
-      return new QueryData(fields, tables, pred);
+      if (lex.matchKeyword("order")) {
+         lex.eatKeyword("order");
+         if (lex.matchKeyword("by")) {
+            lex.eatKeyword("by");
+         }
+         orderInfos = orderList();
+      }
+      return new QueryData(fields, tables, pred, orderInfos);
    }
    
    private List<String> selectList() {
@@ -91,6 +99,21 @@ public class Parser {
       if (lex.matchDelim(',')) {
          lex.eatDelim(',');
          L.addAll(tableList());
+      }
+      return L;
+   }
+
+   private List<OrderInfo> orderList() {
+      List<OrderInfo> L = new ArrayList<OrderInfo>();
+      String field = lex.eatId();
+      String orderType = "asc";
+      if (lex.matchKeyword("asc") || lex.matchKeyword("desc")) 
+         orderType = lex.eatOrderType();
+      L.add(new OrderInfo(field, orderType));
+      
+      if (lex.matchDelim(',')) {
+         lex.eatDelim(',');
+         L.addAll(orderList());
       }
       return L;
    }

@@ -12,14 +12,27 @@ public class QueryData {
    private List<String> fields;
    private Collection<String> tables;
    private Predicate pred;
+   private List<OrderInfo> orderInfos;
+   
+
+   /**
+    * Saves the field and table list and predicate.
+    */
+    public QueryData(List<String> fields, Collection<String> tables, Predicate pred) {
+      this.fields = fields;
+      this.tables = tables;
+      this.pred = pred;
+      this.orderInfos = new ArrayList<OrderInfo>();
+   }
    
    /**
     * Saves the field and table list and predicate.
     */
-   public QueryData(List<String> fields, Collection<String> tables, Predicate pred) {
+   public QueryData(List<String> fields, Collection<String> tables, Predicate pred, List<OrderInfo> orderInfos) {
       this.fields = fields;
       this.tables = tables;
       this.pred = pred;
+      this.orderInfos = orderInfos;
    }
    
    /**
@@ -45,6 +58,10 @@ public class QueryData {
     */
    public Predicate pred() {
       return pred;
+   }
+
+   public List<OrderInfo> orderInfos() {
+      return orderInfos;
    }
    
    public String toString() {

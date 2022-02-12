@@ -88,6 +88,10 @@ public class Lexer {
 		return s.equals("btree") || s.equals("hash");
 	}
 
+	public boolean matchOrderType(String s) {
+		return s.equals("asc") || s.equals("desc");
+	}
+
 	//Methods to "eat" the current token
 
 	/**
@@ -200,6 +204,14 @@ public class Lexer {
 		return s;
 	}
 
+	public String eatOrderType() {
+		String s = tok.sval;
+		if (!matchOrderType(s))
+			throw new BadSyntaxException();
+		nextToken();
+		return s;
+	}
+
 	private void nextToken() {
 		try {
 			tok.nextToken();
@@ -213,6 +225,6 @@ public class Lexer {
 		keywords = Arrays.asList("select", "from", "where", "and",
 				"insert", "into", "values", "delete", "update", "set", 
 				"create", "table", "int", "varchar", "view", "as", "index", "on",
-				"using");
+				"using", "order", "by");
 	}
 }

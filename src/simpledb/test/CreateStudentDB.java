@@ -17,13 +17,13 @@ public class CreateStudentDB {
 			planner.executeUpdate(cmd, tx);
 			System.out.println("Table STUDENT created.");
 			
-			cmd = "create index sid on STUDENT(sid)";
-			planner.executeUpdate(cmd, tx);
-			System.out.println("Indexing majorid");
-			
-			cmd = "create index majorid on STUDENT(MajorId) using btree";
-			planner.executeUpdate(cmd, tx);
-			System.out.println("Indexing majorid");
+//			cmd = "create index sid on STUDENT(sid) using btree";
+//			planner.executeUpdate(cmd, tx);
+//			System.out.println("Indexing majorid");
+//			
+//			cmd = "create index majorid on STUDENT(MajorId) using btree";
+//			planner.executeUpdate(cmd, tx);
+//			System.out.println("Indexing majorid");
 			
 			cmd = "insert into STUDENT(SId, SName, MajorId, GradYear) values ";
 			String[] studvals = {"(1, 'joe', 10, 2021)",
@@ -81,18 +81,18 @@ public class CreateStudentDB {
 				planner.executeUpdate(cmd + sectvals[i], tx);
 			System.out.println("SECTION records inserted.");
 			
-			cmd = "create index courseID on Section(courseId)";
-			planner.executeUpdate(cmd, tx);
-			System.out.println("Indexing courseid");
+//			cmd = "create index courseID on Section(courseId)";
+//			planner.executeUpdate(cmd, tx);
+//			System.out.println("Indexing courseid");
 			
 			
 			cmd = "create table ENROLL(EId int, StudentId int, SectionId int, Grade varchar(2))";
 			planner.executeUpdate(cmd, tx);
 			System.out.println("Table ENROLL created.");
 			
-			cmd = "create index studentid on Enroll(StudentId)";
-			planner.executeUpdate(cmd, tx);
-			System.out.println("Indexing majorid");
+//			cmd = "create index studentid on Enroll(StudentId)";
+//			planner.executeUpdate(cmd, tx);
+//			System.out.println("Indexing majorid");
 
 			cmd = "insert into ENROLL(EId, StudentId, SectionId, Grade) values ";
 			String[] enrollvals = {"(14, 1, 13, 'A')",
