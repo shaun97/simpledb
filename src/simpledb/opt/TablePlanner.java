@@ -6,6 +6,7 @@ import simpledb.record.*;
 import simpledb.query.*;
 import simpledb.metadata.*;
 import simpledb.index.planner.*;
+import simpledb.materialize.MergeJoinPlan;
 import simpledb.multibuffer.MultibufferProductPlan;
 import simpledb.plan.*;
 
@@ -64,7 +65,7 @@ class TablePlanner {
       Predicate joinpred = mypred.joinSubPred(myschema, currsch);
       if (joinpred == null)
          return null;
-      Plan p = makeIndexJoin(current, currsch);
+      Plan p = makeMergeJoin(current, currsch);
       if (p == null)
          p = makeProductJoin(current, currsch);
       return p;
@@ -109,6 +110,18 @@ class TablePlanner {
    private Plan makeProductJoin(Plan current, Schema currsch) {
       Plan p = makeProductPlan(current);
       return addJoinPred(p, currsch);
+   }
+
+   private Plan makeMergeJoin(Plan current, Schema currsch) {
+      for (String fldname : this.myschema.fields()) {
+         String fldname2 = mypred.equatesWithField(fldname);
+         if (fldname != null && currsch.hasField(fldname2)) {
+            Plan p = new MergeJoinPlan(tx, myplan, current, fldname, fldname2);
+            p = addSelectPred(p);
+            return addJoinPred(p, currsch);
+         }
+      }
+      return null;
    }
    
    private Plan addSelectPred(Plan p) {
