@@ -70,6 +70,7 @@ class TablePlanner {
       Predicate joinpred = mypred.joinSubPred(myschema, currsch);
       if (joinpred == null)
          return null;
+      // TODO heuristics for choosing
       Plan p = makeMultibufferJoin(current, currsch);
       if (p == null)
          p = makeIndexJoin(current, currsch);
