@@ -55,6 +55,7 @@ public class SimpleDB {
 			tx.recover();
 		}
 		mdm = new MetadataMgr(isnew, tx);
+		// SWAP FOR INDEX
 		// QueryPlanner qp = new BasicQueryPlanner(mdm);
 		// UpdatePlanner up = new BasicUpdatePlanner(mdm);
 		QueryPlanner qp = new HeuristicQueryPlanner(mdm);
