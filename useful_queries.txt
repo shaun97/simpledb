@@ -1,0 +1,2 @@
+// To check for Join functions.
+select sid, sname, majorid, gradyear from student, dept where majorid = did

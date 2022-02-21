@@ -20,7 +20,7 @@ public class CreateLargeStudentDB {
 
 			cmd = "create index sid on STUDENT(sid) using btree";
 			planner.executeUpdate(cmd, tx);
-			System.out.println("Indexing majorid");
+			System.out.println("Indexing sid");
 
 			// cmd = "create index majorid on STUDENT(MajorId) using btree";
 			// planner.executeUpdate(cmd, tx);
@@ -47,7 +47,7 @@ public class CreateLargeStudentDB {
 					"(17, 'kimmy', 50, 2020)",
 					"(20, 'oolong', 20, 2021)",
 					"(18, 'bobby', 10, 2021)",
-					"(19, 'jason', 20, 2021",
+					"(19, 'jason', 20, 2021)",
 					"(23, 'jasmine', 70, 2023)",
 					"(26, 'hugh', 80, 2027)",
 					"(21, 'jackman', 70, 2025)",
