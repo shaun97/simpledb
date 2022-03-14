@@ -2,10 +2,12 @@ package simpledb.parse;
 
 import java.util.*;
 
+import simpledb.materialize.AggregationFn;
 import simpledb.query.*;
 
 /**
  * Data for the SQL <i>select</i> statement.
+ * 
  * @author Edward Sciore
  */
 public class QueryData {
@@ -13,47 +15,60 @@ public class QueryData {
    private Collection<String> tables;
    private Predicate pred;
    private List<OrderInfo> orderInfos;
-   
+   private List<String> groupFields;
+   private List<AggregationFn> aggFns;
+   private boolean isDistinct;
 
    /**
     * Saves the field and table list and predicate.
     */
-    public QueryData(List<String> fields, Collection<String> tables, Predicate pred) {
+   public QueryData(List<String> fields, Collection<String> tables, Predicate pred, boolean isDistinct) {
       this.fields = fields;
       this.tables = tables;
       this.pred = pred;
+      this.groupFields = new ArrayList<String>();
       this.orderInfos = new ArrayList<OrderInfo>();
+      this.aggFns = new ArrayList<AggregationFn>();
+      this.isDistinct = isDistinct;
    }
-   
+
    /**
     * Saves the field and table list and predicate.
     */
-   public QueryData(List<String> fields, Collection<String> tables, Predicate pred, List<OrderInfo> orderInfos) {
+   public QueryData(List<String> fields, Collection<String> tables, Predicate pred, List<OrderInfo> orderInfos,
+         List<String> groupFields, List<AggregationFn> aggFns, boolean isDistinct) {
       this.fields = fields;
       this.tables = tables;
       this.pred = pred;
       this.orderInfos = orderInfos;
+      this.groupFields = groupFields;
+      this.aggFns = aggFns;
+      this.isDistinct = isDistinct;
+      
    }
-   
+
    /**
     * Returns the fields mentioned in the select clause.
+    *
     * @return a list of field names
     */
    public List<String> fields() {
       return fields;
    }
-   
+
    /**
     * Returns the tables mentioned in the from clause.
+    *
     * @return a collection of table names
     */
    public Collection<String> tables() {
       return tables;
    }
-   
+
    /**
     * Returns the predicate that describes which
     * records should be in the output table.
+    * 
     * @return the query predicate
     */
    public Predicate pred() {
@@ -63,16 +78,28 @@ public class QueryData {
    public List<OrderInfo> orderInfos() {
       return orderInfos;
    }
+
+   public List<String> groupFields() {
+      return groupFields;
+   }
+
+   public List<AggregationFn> aggFns() {
+      return aggFns;
+   }
    
+   public boolean getDistinct() {
+	   return isDistinct;
+   }
+
    public String toString() {
       String result = "select ";
       for (String fldname : fields)
          result += fldname + ", ";
-      result = result.substring(0, result.length()-2); //remove final comma
+      result = result.substring(0, result.length() - 2); // remove final comma
       result += " from ";
       for (String tblname : tables)
          result += tblname + ", ";
-      result = result.substring(0, result.length()-2); //remove final comma
+      result = result.substring(0, result.length() - 2); // remove final comma
       String predstring = pred.toString();
       if (!predstring.equals(""))
          result += " where " + predstring;

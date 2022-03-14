@@ -15,7 +15,7 @@ public class SimpleIJ {
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 
-		SimpleDB db = new SimpleDB("studentdblarge");
+		SimpleDB db = new SimpleDB("studentdb2");
 		Transaction tx = db.newTx();
 		Planner planner = db.planner();
 		try {
@@ -31,8 +31,7 @@ public class SimpleIJ {
 					doUpdate(planner, tx, cmd);
 				System.out.print("\nSQL> ");
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		sc.close();
@@ -49,7 +48,7 @@ public class SimpleIJ {
 			int totalwidth = 0;
 
 			// print header
-			for(int i=1; i<=numcols; i++) {
+			for (int i = 1; i <= numcols; i++) {
 				String fldname = md.getColumnName(i);
 				int width = md.getColumnDisplaySize(i);
 				totalwidth += width;
@@ -57,21 +56,20 @@ public class SimpleIJ {
 				System.out.format(fmt, fldname);
 			}
 			System.out.println();
-			for(int i=0; i<totalwidth; i++)
+			for (int i = 0; i < totalwidth; i++)
 				System.out.print("-");
 			System.out.println();
 
 			// print records
-			while(s.next()) {
-				for (int i=1; i<=numcols; i++) {
+			while (s.next()) {
+				for (int i = 1; i <= numcols; i++) {
 					String fldname = md.getColumnName(i);
 					int fldtype = md.getColumnType(i);
 					String fmt = "%" + md.getColumnDisplaySize(i);
 					if (fldtype == Types.INTEGER) {
 						int ival = s.getInt(fldname);
 						System.out.format(fmt + "d", ival);
-					}
-					else {
+					} else {
 						String sval = s.getString(fldname);
 						System.out.format(fmt + "s", sval);
 					}
@@ -79,8 +77,7 @@ public class SimpleIJ {
 				System.out.println();
 			}
 			s.close();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			System.out.println("Exception: " + e.getMessage());
 		}
 	}
@@ -89,8 +86,7 @@ public class SimpleIJ {
 		try {
 			int howmany = planner.executeUpdate(cmd, tx);
 			System.out.println(howmany + " records processed");
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			System.out.println("Exception: " + e.getMessage());
 		}
 	}

@@ -2,13 +2,17 @@ package simpledb.opt;
 
 import java.util.*;
 import simpledb.tx.Transaction;
+import simpledb.materialize.AggregationFn;
+import simpledb.materialize.GroupByPlan;
 import simpledb.materialize.SortPlan;
+import simpledb.materialize.DistinctPlan;
 import simpledb.metadata.MetadataMgr;
 import simpledb.parse.QueryData;
 import simpledb.plan.*;
 
 /**
  * A query planner that optimizes using a heuristic-based algorithm.
+ * 
  * @author Edward Sciore
  */
 public class HeuristicQueryPlanner implements QueryPlanner {
@@ -29,28 +33,34 @@ public class HeuristicQueryPlanner implements QueryPlanner {
 	 */
 	public Plan createPlan(QueryData data, Transaction tx) {
 
-		// Step 1:  Create a TablePlanner object for each mentioned table
+		// Step 1: Create a TablePlanner object for each mentioned table
 		for (String tblname : data.tables()) {
 			TablePlanner tp = new TablePlanner(tblname, data.pred(), tx, mdm);
 			tableplanners.add(tp);
 		}
 
-		// Step 2:  Choose the lowest-size plan to begin the join order
+		// Step 2: Choose the lowest-size plan to begin the join order
 		Plan currentplan = getLowestSelectPlan();
 
-		// Step 3:  Repeatedly add a plan to the join order
+		// Step 3: Repeatedly add a plan to the join order
 		while (!tableplanners.isEmpty()) {
 			Plan p = getLowestJoinPlan(currentplan);
 			if (p != null)
 				currentplan = p;
-			else  // no applicable join
+			else // no applicable join
 				currentplan = getLowestProductPlan(currentplan);
 		}
 
-		// Step 4.  Project on the field names and return
+		// TODO Test
+		currentplan = new GroupByPlan(tx, currentplan, data.groupFields(), data.aggFns());
+
+		// Step 4. Project on the field names and return
 		currentplan = new ProjectPlan(currentplan, data.fields());
 
-		return new SortPlan(tx, currentplan, data.orderInfos());
+		if (data.getDistinct()) {
+			currentplan = new DistinctPlan(tx, currentplan, data.fields());
+		}
+			return new SortPlan(tx, currentplan, data.orderInfos());
 	}
 
 	private Plan getLowestSelectPlan() {
