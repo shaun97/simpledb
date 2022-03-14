@@ -51,7 +51,7 @@ public class HeuristicQueryPlanner implements QueryPlanner {
 		}
 
 		// TODO Test
-		currentplan = new GroupByPlan(tx, currentplan, data.groupFields(), new ArrayList<AggregationFn>());
+		currentplan = new GroupByPlan(tx, currentplan, data.groupFields(), data.aggFns());
 
 		// Step 4. Project on the field names and return
 		currentplan = new ProjectPlan(currentplan, data.fields());

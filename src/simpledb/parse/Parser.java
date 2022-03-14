@@ -2,6 +2,12 @@ package simpledb.parse;
 
 import java.util.*;
 
+import simpledb.materialize.AggregationFn;
+import simpledb.materialize.AvgFn;
+import simpledb.materialize.CountFn;
+import simpledb.materialize.MaxFn;
+import simpledb.materialize.MinFn;
+import simpledb.materialize.SumFn;
 import simpledb.query.*;
 import simpledb.record.*;
 
@@ -71,6 +77,18 @@ public class Parser {
       Predicate pred = new Predicate();
       List<OrderInfo> orderInfos = new ArrayList<OrderInfo>();
       List<String> groupByInfos = new ArrayList<String>();
+      // Process and get aggregate function
+      List<AggregationFn> aggFnsInfo = new ArrayList<AggregationFn>();
+      for (int i = 0; i < fields.size(); i++) {
+         String field = fields.get(i);
+         if (fields.get(i).contains("(")) {
+            String aggFnName = field.substring(0, field.indexOf("("));
+            String fieldName = field.substring(field.indexOf("(") + 1, field.indexOf(")"));
+            AggregationFn fn = getAggregationFn(fieldName, aggFnName);
+            aggFnsInfo.add(fn);
+            fields.set(i, fn.fieldName());
+         }
+      }
       if (lex.matchKeyword("where")) {
          lex.eatKeyword("where");
          pred = predicate();
@@ -90,12 +108,38 @@ public class Parser {
          }
          groupByInfos = selectList();
       }
-      return new QueryData(fields, tables, pred, orderInfos, groupByInfos);
+      return new QueryData(fields, tables, pred, orderInfos, groupByInfos, aggFnsInfo);
+   }
+
+   private AggregationFn getAggregationFn(String fieldName, String aggFnName) {
+      switch (aggFnName.toUpperCase()) {
+         case "COUNT":
+            return new CountFn(fieldName);
+         case "MAX":
+            return new MaxFn(fieldName);
+         case "MIN":
+            return new MinFn(fieldName);
+         case "AVG":
+            return new AvgFn(fieldName);
+         case "SUM":
+            return new SumFn(fieldName);
+         default:
+            // TODO Throw error later
+            return new SumFn(fieldName);
+      }
    }
 
    private List<String> selectList() {
       List<String> L = new ArrayList<String>();
-      L.add(field());
+      String temp = field();
+
+      // check if got bracket in next token
+      if (lex.matchDelim('(')) {
+         lex.eatDelim('(');
+         temp = temp + '(' + field() + ')';
+         lex.eatDelim(')');
+      }
+      L.add(temp);
       if (lex.matchDelim(',')) {
          lex.eatDelim(',');
          L.addAll(selectList());

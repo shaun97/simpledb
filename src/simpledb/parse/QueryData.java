@@ -2,6 +2,7 @@ package simpledb.parse;
 
 import java.util.*;
 
+import simpledb.materialize.AggregationFn;
 import simpledb.query.*;
 
 /**
@@ -15,6 +16,7 @@ public class QueryData {
    private Predicate pred;
    private List<OrderInfo> orderInfos;
    private List<String> groupFields;
+   private List<AggregationFn> aggFns;
 
    /**
     * Saves the field and table list and predicate.
@@ -25,23 +27,25 @@ public class QueryData {
       this.pred = pred;
       this.groupFields = new ArrayList<String>();
       this.orderInfos = new ArrayList<OrderInfo>();
+      this.aggFns = new ArrayList<AggregationFn>();
    }
 
    /**
     * Saves the field and table list and predicate.
     */
    public QueryData(List<String> fields, Collection<String> tables, Predicate pred, List<OrderInfo> orderInfos,
-         List<String> groupFields) {
+         List<String> groupFields, List<AggregationFn> aggFns) {
       this.fields = fields;
       this.tables = tables;
       this.pred = pred;
       this.orderInfos = orderInfos;
       this.groupFields = groupFields;
+      this.aggFns = aggFns;
    }
 
    /**
     * Returns the fields mentioned in the select clause.
-    * 
+    *
     * @return a list of field names
     */
    public List<String> fields() {
@@ -50,7 +54,7 @@ public class QueryData {
 
    /**
     * Returns the tables mentioned in the from clause.
-    * 
+    *
     * @return a collection of table names
     */
    public Collection<String> tables() {
@@ -73,6 +77,10 @@ public class QueryData {
 
    public List<String> groupFields() {
       return groupFields;
+   }
+
+   public List<AggregationFn> aggFns() {
+      return aggFns;
    }
 
    public String toString() {
