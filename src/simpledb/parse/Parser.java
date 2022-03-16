@@ -71,6 +71,11 @@ public class Parser {
 
    public QueryData query() {
       lex.eatKeyword("select");
+      boolean isDistinct = false;
+      if (lex.matchKeyword("distinct")) {
+    	  lex.eatKeyword("distinct");
+    	  isDistinct = true;
+      }
       List<String> fields = selectList();
       lex.eatKeyword("from");
       Collection<String> tables = tableList();
@@ -108,7 +113,8 @@ public class Parser {
          }
          groupByInfos = selectList();
       }
-      return new QueryData(fields, tables, pred, orderInfos, groupByInfos, aggFnsInfo);
+      return new QueryData(fields, tables, pred, orderInfos, groupByInfos, aggFnsInfo, isDistinct);
+
    }
 
    private AggregationFn getAggregationFn(String fieldName, String aggFnName) {

@@ -5,6 +5,7 @@ import simpledb.tx.Transaction;
 import simpledb.materialize.AggregationFn;
 import simpledb.materialize.GroupByPlan;
 import simpledb.materialize.SortPlan;
+import simpledb.materialize.DistinctPlan;
 import simpledb.metadata.MetadataMgr;
 import simpledb.parse.QueryData;
 import simpledb.plan.*;
@@ -50,12 +51,16 @@ public class HeuristicQueryPlanner implements QueryPlanner {
 				currentplan = getLowestProductPlan(currentplan);
 		}
 
-		// TODO Test
-		currentplan = new GroupByPlan(tx, currentplan, data.groupFields(), data.aggFns());
+		// TODO Test -- further test this cause groupby can be used without aggregate function
+		if (data.aggFns().size() != 0) 
+			currentplan = new GroupByPlan(tx, currentplan, data.groupFields(), data.aggFns());
 
 		// Step 4. Project on the field names and return
 		currentplan = new ProjectPlan(currentplan, data.fields());
 
+		if (data.getDistinct()) {
+			currentplan = new DistinctPlan(tx, currentplan, data.fields());
+		}
 		return new SortPlan(tx, currentplan, data.orderInfos());
 	}
 
