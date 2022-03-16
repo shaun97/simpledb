@@ -73,8 +73,8 @@ public class Parser {
       lex.eatKeyword("select");
       boolean isDistinct = false;
       if (lex.matchKeyword("distinct")) {
-    	  lex.eatKeyword("distinct");
-    	  isDistinct = true;
+         lex.eatKeyword("distinct");
+         isDistinct = true;
       }
       List<String> fields = selectList();
       lex.eatKeyword("from");
@@ -93,6 +93,13 @@ public class Parser {
             aggFnsInfo.add(fn);
             fields.set(i, fn.fieldName());
          }
+      }
+
+      if (lex.matchKeyword("join")) {
+         lex.eatKeyword("join");
+         tables.addAll(tableList());
+         lex.eatKeyword("on");
+         pred = (predicate());
       }
       if (lex.matchKeyword("where")) {
          lex.eatKeyword("where");
@@ -113,6 +120,7 @@ public class Parser {
          }
          groupByInfos = selectList();
       }
+
       return new QueryData(fields, tables, pred, orderInfos, groupByInfos, aggFnsInfo, isDistinct);
 
    }
