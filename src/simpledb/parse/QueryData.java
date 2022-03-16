@@ -19,6 +19,7 @@ public class QueryData {
    private List<AggregationFn> aggFns;
    private boolean isDistinct;
 
+
    /**
     * Saves the field and table list and predicate.
     */
@@ -44,7 +45,6 @@ public class QueryData {
       this.groupFields = groupFields;
       this.aggFns = aggFns;
       this.isDistinct = isDistinct;
-      
    }
 
    /**
@@ -86,7 +86,7 @@ public class QueryData {
    public List<AggregationFn> aggFns() {
       return aggFns;
    }
-   
+     
    public boolean getDistinct() {
 	   return isDistinct;
    }

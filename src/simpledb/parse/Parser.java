@@ -113,9 +113,8 @@ public class Parser {
          }
          groupByInfos = selectList();
       }
-      
-  
       return new QueryData(fields, tables, pred, orderInfos, groupByInfos, aggFnsInfo, isDistinct);
+
    }
 
    private AggregationFn getAggregationFn(String fieldName, String aggFnName) {

@@ -242,5 +242,6 @@ public class Lexer {
 				"insert", "into", "values", "delete", "update", "set",
 				"create", "table", "int", "varchar", "view", "as", "index", "on",
 				"using", "order", "by", "group", "distinct");
+
 	}
 }
