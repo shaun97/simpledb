@@ -70,6 +70,7 @@ class TablePlanner {
       Predicate joinpred = mypred.joinSubPred(myschema, currsch);
       if (joinpred == null)
          return null;
+      System.out.println("Index Cond: (" +  joinpred.toString() + ")");
       // TODO heuristics for choosing
       Plan p = makeMultibufferJoin(current, currsch);
       if (p == null)
@@ -98,7 +99,7 @@ class TablePlanner {
          Constant val = mypred.equatesWithConstant(fldname);
          if (val != null) {
             IndexInfo ii = indexes.get(fldname);
-            System.out.println("index on " + fldname + " used");
+            System.out.println("Index using " + fldname + " on " + tblname);
             return new IndexSelectPlan(myplan, ii, val);
          }
       }
@@ -143,8 +144,10 @@ class TablePlanner {
 
    private Plan addSelectPred(Plan p) {
       Predicate selectpred = mypred.selectSubPred(myschema);
-      if (selectpred != null)
+      if (selectpred != null) {
+         System.out.println("Index Cond: (" +  selectpred.toString() + ")");
          return new SelectPlan(p, selectpred);
+      }
       else
          return p;
    }
