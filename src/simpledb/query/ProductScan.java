@@ -27,9 +27,22 @@ public class ProductScan implements Scan {
     * @see simpledb.query.Scan#beforeFirst()
     */
    public void beforeFirst() {
-      s1.beforeFirst();
+	  shouldScan = canScan();
+      s1.beforeFirst(); 
       s1.next();
       s2.beforeFirst();
+   }
+   
+   public boolean canScan() {
+	   s1.beforeFirst();
+	   s2.beforeFirst();
+	   if (!s1.next()) {
+		   return false;
+	   }
+	   if (!s2.next()) {
+		   return false;
+	   }
+	   return true;
    }
 
    /**
@@ -41,6 +54,9 @@ public class ProductScan implements Scan {
     * @see simpledb.query.Scan#next()
     */
    public boolean next() {
+      if (!shouldScan) {
+		  return false;
+	   }
       if (s2.next())
          return true;
       else {
