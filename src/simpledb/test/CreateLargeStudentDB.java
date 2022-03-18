@@ -147,6 +147,11 @@ public class CreateLargeStudentDB {
 					"(43, 'civil', 40)",
 					"(44, 'enviromental', 40)",
 					"(45, 'lowlevel', 40)",
+					"(13, 'algo', 10)",
+					"(13, 'alsgo', 10)",
+					"(13, 'algdo', 10)",
+					"(13, 'algdfo', 10)",
+					"(13, 'algfo', 10)",
 
 			};
 			for (int i = 0; i < coursevals.length; i++)

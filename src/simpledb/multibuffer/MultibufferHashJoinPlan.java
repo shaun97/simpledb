@@ -30,7 +30,7 @@ public class MultibufferHashJoinPlan implements Plan {
     */
    public MultibufferHashJoinPlan(Transaction tx, Plan lhs, Plan rhs, Predicate pred) {
       this.tx = tx;
-      this.lhs = lhs;
+      this.lhs = new MaterializePlan(tx, lhs);
       this.rhs = rhs;
       this.pred = pred;
       schema.addAll(lhs.schema());
@@ -57,11 +57,9 @@ public class MultibufferHashJoinPlan implements Plan {
       k = tx.availableBuffs() - 1;
       // Check if k rhs is no more than k blocks
       if (filesize < k) {
-         System.out.println("no need buffer filesize: " + filesize);
          return new MultibufferJoinScan(tx, leftscan, ttr.tableName(), ttr.getLayout(), pred);
-
       }
-      System.out.println("need buffer filesize:" + filesize);
+
       // TempTable ttl = copyRecordsFrom(lhs);
       // filesize = tx.size(ttl.tableName() + ".tbl");
       // if (filesize < k) {
@@ -72,18 +70,16 @@ public class MultibufferHashJoinPlan implements Plan {
       // }
 
       // Split lhs
-      System.out.println("hashing lhs");
       List<TempTable> lhsPartitions = splitIntoPartitions(leftscan, lhs.schema());
 
       // Split rhs
-      System.out.println("hashing rhs");
       List<TempTable> rhsPartitions = splitIntoPartitions(rhs.open(), rhs.schema());
 
       // For each i between 0 and k-1:
       // a) Let Vi be the ith temporary table of T1.
       // b) Let Wi be the ith temporary table of T2.
       // c) Recursively perform the hashjoin of Vi and Wi.
-      return new MultibufferHashJoinScan(tx, lhsPartitions, rhsPartitions, schema, pred);
+      return new MultibufferHashJoinScan(tx, lhsPartitions, rhsPartitions, pred);
    }
 
    private List<TempTable> splitIntoPartitions(Scan src, Schema hashSch) {
@@ -92,12 +88,12 @@ public class MultibufferHashJoinPlan implements Plan {
       // Create all the buckets
       for (int i = 0; i < k; i++) {
          TempTable currenttemp = new TempTable(tx, hashSch);
-         System.out.println(currenttemp.tableName());
          temps.add(currenttemp);
       }
 
       src.beforeFirst();
-      if (!src.next())
+      boolean hasMore = src.next();
+      if (!hasMore)
          return temps;
 
       // Find the field in the join pred that is from this table
@@ -106,13 +102,14 @@ public class MultibufferHashJoinPlan implements Plan {
          // Throw error
       }
 
-      while (src.next()) {
+      while (hasMore) {
          int valToHash = src.getVal(hashFldName).asInt();
          int hash = hashFn(valToHash, k);
          // System.out.println("hashing to bucket: " + hash);
          UpdateScan tempScan = temps.get(hash).open();
          copy(src, tempScan, hashSch);
          tempScan.close();
+         hasMore = src.next();
       }
 
       return temps;
@@ -128,7 +125,7 @@ public class MultibufferHashJoinPlan implements Plan {
    }
 
    private int hashFn(int value, int k) {
-      return (int) Math.floor(value) % (k - 1);
+      return (int) Math.floor(value / 3) % (k - 1);
    }
 
    /**

@@ -18,14 +18,12 @@ public class MultibufferHashJoinScan implements Scan {
    private Transaction tx;
    private Scan prodscan;
    private Predicate pred;
-   private Schema schema;
    private List<TempTable> lhsPartitions, rhsPartitions;
    private UpdateScan lhsscan;
    private int currentBucket;
 
    public MultibufferHashJoinScan(Transaction tx, List<TempTable> lhsPartitions, List<TempTable> rhsPartitions,
-         Schema schema, Predicate pred) {
-      this.schema = schema;
+         Predicate pred) {
       this.tx = tx;
       this.pred = pred;
       this.lhsPartitions = lhsPartitions;
@@ -121,8 +119,7 @@ public class MultibufferHashJoinScan implements Scan {
          }
          lhsscan = lhsPartitions.get(currentBucket).open();
          TempTable rhstable = rhsPartitions.get(currentBucket);
-         // prodscan = new MultibufferJoinScan(tx, lhsscan, rhstable.tableName(),
-         // rhstable.getLayout(), pred);
+
          prodscan = new MultibufferJoinScan(tx, lhsscan, rhstable.tableName(), rhstable.getLayout(), pred);
          currentBucket++;
          return true;
