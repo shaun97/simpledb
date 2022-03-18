@@ -1,2 +1,8 @@
 // To check for Join functions.
 select sid, sname, majorid, gradyear from student, dept where majorid = did
+
+select title, deptid, dname from course, dept on deptid = did
+
+select title, deptid, dname from course join dept on did = deptid
+
+select dname, did, title from course, dept where did = deptid

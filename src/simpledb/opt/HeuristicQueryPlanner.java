@@ -51,8 +51,9 @@ public class HeuristicQueryPlanner implements QueryPlanner {
 				currentplan = getLowestProductPlan(currentplan);
 		}
 
-		// TODO Test -- further test this cause groupby can be used without aggregate function
-		if (data.aggFns().size() != 0) 
+		// TODO Test -- further test this cause groupby can be used without aggregate
+		// function
+		if (data.aggFns().size() != 0)
 			currentplan = new GroupByPlan(tx, currentplan, data.groupFields(), data.aggFns());
 
 		// Step 4. Project on the field names and return
@@ -81,6 +82,7 @@ public class HeuristicQueryPlanner implements QueryPlanner {
 	private Plan getLowestJoinPlan(Plan current) {
 		TablePlanner besttp = null;
 		Plan bestplan = null;
+
 		for (TablePlanner tp : tableplanners) {
 			Plan plan = tp.makeJoinPlan(current);
 			if (plan != null && (bestplan == null || plan.recordsOutput() < bestplan.recordsOutput())) {
