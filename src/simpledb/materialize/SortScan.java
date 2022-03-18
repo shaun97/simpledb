@@ -47,6 +47,10 @@ public class SortScan implements Scan {
     */
    public void beforeFirst() {
       currentscan = null;
+      if (s1 != null) {
+         s1.beforeFirst();
+         hasmore1 = s1.next();
+      }
       s1.beforeFirst();
       hasmore1 = s1.next();
       if (s2 != null) {

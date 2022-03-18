@@ -32,6 +32,7 @@ public class DistinctPlan implements Plan {
     	  orderInfo.add(new OrderInfo(field, "asc"));
       }
       this.p = new SortPlan(tx, p, orderInfo);
+      System.out.println("Distinct Plan");
    }
    
   
