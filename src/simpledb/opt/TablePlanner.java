@@ -139,7 +139,7 @@ class TablePlanner {
 
    private Plan makeMultibufferJoin(Plan current, Schema currsch) {
       Predicate joinpred = mypred.joinSubPred(currsch, myschema);
-      System.out.println("Join Cond: (" +  selectpred.toString() + ")");
+      System.out.println("Join Cond: (" +  joinpred.toString() + ")");
       Plan p = addSelectPred(myplan); // TODO do we need?
       return new MultibufferJoinPlan(tx, current, p, joinpred);
    }
@@ -157,7 +157,7 @@ class TablePlanner {
    private Plan addJoinPred(Plan p, Schema currsch) {
       Predicate joinpred = mypred.joinSubPred(currsch, myschema);
       if (joinpred != null) {
-         System.out.println("Join Cond: (" +  selectpred.toString() + ")");
+         System.out.println("Join Cond: (" +  joinpred.toString() + ")");
          return new SelectPlan(p, joinpred);
       }
          
