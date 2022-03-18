@@ -51,11 +51,17 @@ class TablePlanner {
     * 
     * @return a select plan for the table.
     */
+
    public Plan makeSelectPlan() {
-      Plan p = makeIndexSelect();
-      if (p == null)
-         p = myplan;
-      return addSelectPred(p);
+      if (mypred.selectSubPred(myschema) == null) {
+         Plan p = makeIndexSelect();
+         if (p == null) {
+            p = myplan;
+         }
+         return addSelectPred(p);
+      } else {
+         return addSelectPred(myplan);
+      }
    }
 
    /**
