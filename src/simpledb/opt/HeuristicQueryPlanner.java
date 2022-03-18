@@ -2,7 +2,6 @@ package simpledb.opt;
 
 import java.util.*;
 import simpledb.tx.Transaction;
-import simpledb.materialize.AggregationFn;
 import simpledb.materialize.GroupByPlan;
 import simpledb.materialize.SortPlan;
 import simpledb.materialize.DistinctPlan;

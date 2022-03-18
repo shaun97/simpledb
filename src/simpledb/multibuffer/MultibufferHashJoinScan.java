@@ -2,18 +2,7 @@ package simpledb.multibuffer;
 
 import simpledb.tx.Transaction;
 import simpledb.query.*;
-import simpledb.record.*;
-import simpledb.multibuffer.MultibufferProductScan;
-import simpledb.materialize.*;
-import java.util.*;
-import simpledb.plan.Plan;
 
-/**
- * The Scan class for the multi-buffer version of the
- * <i>product</i> operator.
- * 
- * @author Edward Sciore
- */
 public class MultibufferHashJoinScan implements Scan {
    private Transaction tx;
    private Scan src;

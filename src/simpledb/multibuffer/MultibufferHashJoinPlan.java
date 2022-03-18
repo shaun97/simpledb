@@ -6,7 +6,6 @@ import simpledb.record.*;
 import simpledb.query.*;
 import simpledb.materialize.*;
 import simpledb.plan.Plan;
-import java.lang.*;
 
 /**
  * The Plan class for the multi-buffer version of the
@@ -21,13 +20,6 @@ public class MultibufferHashJoinPlan implements Plan {
    private Predicate pred;
    private int k;
 
-   /**
-    * Creates a product plan for the specified queries.
-    * 
-    * @param lhs the plan for the LHS query
-    * @param rhs the plan for the RHS query
-    * @param tx  the calling transaction
-    */
    public MultibufferHashJoinPlan(Transaction tx, Plan lhs, Plan rhs, Predicate pred) {
       this.tx = tx;
       this.lhs = lhs;
@@ -37,21 +29,8 @@ public class MultibufferHashJoinPlan implements Plan {
       schema.addAll(rhs.schema());
    }
 
-   /**
-    * A scan for this query is created and returned, as follows.
-    * First, the method materializes its LHS and RHS queries.
-    * It then determines the optimal chunk size,
-    * based on the size of the materialized RHS file and the
-    * number of available buffers.
-    * It creates a chunk plan for each chunk, saving them in a list.
-    * Finally, it creates a multiscan for this list of plans,
-    * and returns that scan.
-    * 
-    * @see simpledb.plan.Plan#open()
-    */
    public Scan open() {
       Scan leftscan = lhs.open();
-      // TODO Will incur i/o might need to change
       TempTable ttr = copyRecordsFrom(rhs);
       int filesize = tx.size(ttr.tableName() + ".tbl");
       k = tx.availableBuffs() - 1;
@@ -59,15 +38,6 @@ public class MultibufferHashJoinPlan implements Plan {
       if (filesize < k) {
          return new MultibufferJoinScan(tx, leftscan, ttr.tableName(), ttr.getLayout(), pred);
       }
-
-      // TempTable ttl = copyRecordsFrom(lhs);
-      // filesize = tx.size(ttl.tableName() + ".tbl");
-      // if (filesize < k) {
-      // System.out.println("no need buffer filesize:" + filesize);
-      // Scan prodscan = new MultibufferProductScan(tx, leftscan, ttl.tableName(),
-      // ttl.getLayout());
-      // return new SelectScan(prodscan, pred);
-      // }
 
       // Split lhs
       List<TempTable> lhsPartitions = splitIntoPartitions(leftscan, lhs.schema());
@@ -160,27 +130,10 @@ public class MultibufferHashJoinPlan implements Plan {
       return 3 * (size1 + size2);
    }
 
-   /**
-    * Estimates the number of output records in the product.
-    * The formula is:
-    * 
-    * <pre>
-    * R(product(p1, p2)) = R(p1) * R(p2)
-    * </pre>
-    * 
-    * @see simpledb.plan.Plan#recordsOutput()
-    */
    public int recordsOutput() {
       return lhs.recordsOutput() * rhs.recordsOutput();
    }
 
-   /**
-    * Estimates the distinct number of field values in the product.
-    * Since the product does not increase or decrease field values,
-    * the estimate is the same as in the appropriate underlying query.
-    * 
-    * @see simpledb.plan.Plan#distinctValues(java.lang.String)
-    */
    public int distinctValues(String fldname) {
       if (lhs.schema().hasField(fldname))
          return lhs.distinctValues(fldname);
@@ -188,12 +141,6 @@ public class MultibufferHashJoinPlan implements Plan {
          return rhs.distinctValues(fldname);
    }
 
-   /**
-    * Returns the schema of the product,
-    * which is the union of the schemas of the underlying queries.
-    * 
-    * @see simpledb.plan.Plan#schema()
-    */
    public Schema schema() {
       return schema;
    }

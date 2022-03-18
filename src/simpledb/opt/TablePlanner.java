@@ -97,19 +97,7 @@ class TablePlanner {
       p = makeMultibufferHashJoin(current, currsch);
       if (p != null && bestplan.blocksAccessed() > p.blocksAccessed()) {
          bestplan = p;
-      }
-      // Plan p = makeMultibufferHashJoin(current, currsch);
-      // // Plan p = makeMultibufferJoin(current, currsch);
-      // if (p == null)
-      //    p = makeIndexJoin(current, currsch);
-      // if (p == null)
-      //    p = makeMergeJoin(current, currsch);
-      // if (p == null)
-      //    p = makeProductJoin(current, currsch);
-
-      // For Experiment
-      // Plan p = makeIndexJoin(current, currsch);
-      // return p;   
+      }  
       return bestplan;
    }
 
