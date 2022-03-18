@@ -81,14 +81,16 @@ class TablePlanner {
          return null;
       System.out.println("Index Cond: (" + joinpred.toString() + ")");
       // TODO heuristics for choosing
-      Plan p = makeMultibufferHashJoin(current, currsch);
-      // Plan p = makeMultibufferJoin(current, currsch);
-      if (p == null)
-         p = makeIndexJoin(current, currsch);
-      if (p == null)
-         p = makeMergeJoin(current, currsch);
-      if (p == null)
-         p = makeProductJoin(current, currsch);
+      // Plan p = makeMultibufferHashJoin(current, currsch);
+      // // Plan p = makeMultibufferJoin(current, currsch);
+      // if (p == null)
+      //    p = makeIndexJoin(current, currsch);
+      // if (p == null)
+      //    p = makeMergeJoin(current, currsch);
+      // if (p == null)
+      //    p = makeProductJoin(current, currsch);
+
+      Plan p = makeProductJoin(current, currsch);
       return p;
    }
 
