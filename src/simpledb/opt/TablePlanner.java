@@ -22,6 +22,7 @@ class TablePlanner {
    private Schema myschema;
    private Map<String, IndexInfo> indexes;
    private Transaction tx;
+   private String tblname;
 
    /**
     * Creates a new table planner.
@@ -40,6 +41,7 @@ class TablePlanner {
       myplan = new TablePlan(tx, tblname, mdm);
       myschema = myplan.schema();
       indexes = mdm.getIndexInfo(tblname, tx);
+      this.tblname  = tblname;
    }
 
    /**
@@ -70,7 +72,6 @@ class TablePlanner {
       Predicate joinpred = mypred.joinSubPred(myschema, currsch);
       if (joinpred == null)
          return null;
-      System.out.println("Index Cond: (" +  joinpred.toString() + ")");
       // TODO heuristics for choosing
       Plan p = makeMultibufferJoin(current, currsch);
       if (p == null)
@@ -138,6 +139,7 @@ class TablePlanner {
 
    private Plan makeMultibufferJoin(Plan current, Schema currsch) {
       Predicate joinpred = mypred.joinSubPred(currsch, myschema);
+      System.out.println("Join Cond: (" +  selectpred.toString() + ")");
       Plan p = addSelectPred(myplan); // TODO do we need?
       return new MultibufferJoinPlan(tx, current, p, joinpred);
    }
@@ -145,7 +147,7 @@ class TablePlanner {
    private Plan addSelectPred(Plan p) {
       Predicate selectpred = mypred.selectSubPred(myschema);
       if (selectpred != null) {
-         System.out.println("Index Cond: (" +  selectpred.toString() + ")");
+         System.out.println("Select Cond: (" +  selectpred.toString() + ")");
          return new SelectPlan(p, selectpred);
       }
       else
@@ -154,8 +156,11 @@ class TablePlanner {
 
    private Plan addJoinPred(Plan p, Schema currsch) {
       Predicate joinpred = mypred.joinSubPred(currsch, myschema);
-      if (joinpred != null)
+      if (joinpred != null) {
+         System.out.println("Join Cond: (" +  selectpred.toString() + ")");
          return new SelectPlan(p, joinpred);
+      }
+         
       else
          return p;
    }
