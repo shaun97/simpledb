@@ -51,7 +51,6 @@ public class MultibufferHashJoinPlan implements Plan {
     */
    public Scan open() {
       Scan leftscan = lhs.open();
-      Scan rightscan = rhs.open();
       // TODO Will incur i/o might need to change
       TempTable ttr = copyRecordsFrom(rhs);
       int filesize = tx.size(ttr.tableName() + ".tbl");
@@ -59,8 +58,8 @@ public class MultibufferHashJoinPlan implements Plan {
       // Check if k rhs is no more than k blocks
       if (filesize < k) {
          System.out.println("no need buffer filesize: " + filesize);
-         Scan prodscan = new MultibufferProductScan(tx, leftscan, ttr.tableName(), ttr.getLayout());
-         return new SelectScan(prodscan, pred);
+         return new MultibufferJoinScan(tx, leftscan, ttr.tableName(), ttr.getLayout(), pred);
+
       }
       System.out.println("need buffer filesize:" + filesize);
       // TempTable ttl = copyRecordsFrom(lhs);
@@ -92,7 +91,7 @@ public class MultibufferHashJoinPlan implements Plan {
 
       // Create all the buckets
       for (int i = 0; i < k; i++) {
-         TempTable currenttemp = new TempTable(tx, schema);
+         TempTable currenttemp = new TempTable(tx, hashSch);
          System.out.println(currenttemp.tableName());
          temps.add(currenttemp);
       }
@@ -129,7 +128,7 @@ public class MultibufferHashJoinPlan implements Plan {
    }
 
    private int hashFn(int value, int k) {
-      return (int) Math.floor(value / 3) % (k - 1);
+      return (int) Math.floor(value) % (k - 1);
    }
 
    /**

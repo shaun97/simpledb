@@ -30,6 +30,7 @@ public class MultibufferHashJoinScan implements Scan {
       this.pred = pred;
       this.lhsPartitions = lhsPartitions;
       this.rhsPartitions = rhsPartitions;
+      beforeFirst();
    }
 
    /**
@@ -114,13 +115,15 @@ public class MultibufferHashJoinScan implements Scan {
 
    private boolean useNextHashPartition() {
       if (lhsPartitions.size() > currentBucket && rhsPartitions.size() > currentBucket) {
-         if (lhsscan != null)
+         if (lhsscan != null) {
             lhsscan.close();
-         lhsscan = rhsPartitions.get(currentBucket).open();
-         TempTable rhstable = lhsPartitions.get(currentBucket);
+            // prodscan.close();
+         }
+         lhsscan = lhsPartitions.get(currentBucket).open();
+         TempTable rhstable = rhsPartitions.get(currentBucket);
          // prodscan = new MultibufferJoinScan(tx, lhsscan, rhstable.tableName(),
          // rhstable.getLayout(), pred);
-         prodscan = new MultibufferProductScan(tx, lhsscan, rhstable.tableName(), rhstable.getLayout());
+         prodscan = new MultibufferJoinScan(tx, lhsscan, rhstable.tableName(), rhstable.getLayout(), pred);
          currentBucket++;
          return true;
       } else {
