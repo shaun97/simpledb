@@ -62,8 +62,12 @@ public class HeuristicQueryPlanner implements QueryPlanner {
 		if (data.getDistinct()) {
 			currentplan = new DistinctPlan(tx, currentplan, data.fields());
 		}
-		return new SortPlan(tx, currentplan, data.orderInfos());
-		// return currentplan;
+
+		if (data.orderInfos().size() != 0) {
+			currentplan = new SortPlan(tx, currentplan, data.orderInfos());
+		}
+
+		return currentplan;
 	}
 
 	private Plan getLowestSelectPlan() {

@@ -30,7 +30,7 @@ public class MultibufferHashJoinPlan implements Plan {
     */
    public MultibufferHashJoinPlan(Transaction tx, Plan lhs, Plan rhs, Predicate pred) {
       this.tx = tx;
-      this.lhs = new MaterializePlan(tx, lhs);
+      this.lhs = lhs;
       this.rhs = rhs;
       this.pred = pred;
       schema.addAll(lhs.schema());
@@ -74,12 +74,17 @@ public class MultibufferHashJoinPlan implements Plan {
 
       // Split rhs
       List<TempTable> rhsPartitions = splitIntoPartitions(rhs.open(), rhs.schema());
-
+      
+      // need to check the schema for this one
+      TempTable result = new TempTable(tx, schema);
+      for (int i = 0; i < k; i++) {
+         getJoinTable(lhsPartitions.get(i), rhsPartitions.get(i), result);
+      }
       // For each i between 0 and k-1:
       // a) Let Vi be the ith temporary table of T1.
       // b) Let Wi be the ith temporary table of T2.
       // c) Recursively perform the hashjoin of Vi and Wi.
-      return new MultibufferHashJoinScan(tx, lhsPartitions, rhsPartitions, pred);
+      return new MultibufferHashJoinScan(tx, result.open());
    }
 
    private List<TempTable> splitIntoPartitions(Scan src, Schema hashSch) {
@@ -107,13 +112,29 @@ public class MultibufferHashJoinPlan implements Plan {
          int hash = hashFn(valToHash, k);
          // System.out.println("hashing to bucket: " + hash);
          UpdateScan tempScan = temps.get(hash).open();
-         copy(src, tempScan, hashSch);
+         hasMore = copy(src, tempScan, hashSch);
          tempScan.close();
-         hasMore = src.next();
       }
 
       return temps;
    }
+
+   private void getJoinTable(TempTable p1, TempTable p2, TempTable result) {
+      Scan src1 = p1.open();
+      Scan prodscan = new MultibufferJoinScan(tx, src1, p2.tableName(), p2.getLayout(), pred);
+      UpdateScan dest = result.open();
+      
+      boolean hasmore = prodscan.next();
+
+      while (hasmore) {
+         hasmore = copy(prodscan, dest, schema);
+      }
+         
+      // src1.close();
+      prodscan.close();
+      dest.close();
+   }
+
 
    private String getHashFldName(Schema hashSch, Predicate hashPred) {
       for (String fldname : hashSch.fields()) {
@@ -205,10 +226,11 @@ public class MultibufferHashJoinPlan implements Plan {
       return t;
    }
 
-   private void copy(Scan src, UpdateScan dest, Schema scanSch) {
+   private boolean copy(Scan src, UpdateScan dest, Schema scanSch) {
       dest.insert();
       for (String fldname : scanSch.fields()) {
          dest.setVal(fldname, src.getVal(fldname));
       }
+      return src.next();
    }
 }

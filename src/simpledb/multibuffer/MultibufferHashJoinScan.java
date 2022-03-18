@@ -16,18 +16,12 @@ import simpledb.plan.Plan;
  */
 public class MultibufferHashJoinScan implements Scan {
    private Transaction tx;
-   private Scan prodscan;
-   private Predicate pred;
-   private List<TempTable> lhsPartitions, rhsPartitions;
-   private UpdateScan lhsscan;
-   private int currentBucket;
+   private Scan src;
 
-   public MultibufferHashJoinScan(Transaction tx, List<TempTable> lhsPartitions, List<TempTable> rhsPartitions,
-         Predicate pred) {
+
+   public MultibufferHashJoinScan(Transaction tx, Scan src) {
       this.tx = tx;
-      this.pred = pred;
-      this.lhsPartitions = lhsPartitions;
-      this.rhsPartitions = rhsPartitions;
+      this.src = src;
       beforeFirst();
    }
 
@@ -39,8 +33,7 @@ public class MultibufferHashJoinScan implements Scan {
     * @see simpledb.query.Scan#beforeFirst()
     */
    public void beforeFirst() {
-      currentBucket = 0;
-      useNextHashPartition();
+      src.beforeFirst();
    }
 
    /**
@@ -53,10 +46,7 @@ public class MultibufferHashJoinScan implements Scan {
     * @see simpledb.query.Scan#next()
     */
    public boolean next() {
-      while (!prodscan.next())
-         if (!useNextHashPartition())
-            return false;
-      return true;
+      return src.next();
    }
 
    /**
@@ -65,7 +55,7 @@ public class MultibufferHashJoinScan implements Scan {
     * @see simpledb.query.Scan#close()
     */
    public void close() {
-      prodscan.close();
+      src.close();
    }
 
    /**
@@ -76,7 +66,7 @@ public class MultibufferHashJoinScan implements Scan {
     * @see simpledb.query.Scan#getVal(java.lang.String)
     */
    public Constant getVal(String fldname) {
-      return prodscan.getVal(fldname);
+      return src.getVal(fldname);
    }
 
    /**
@@ -87,7 +77,7 @@ public class MultibufferHashJoinScan implements Scan {
     * @see simpledb.query.Scan#getInt(java.lang.String)
     */
    public int getInt(String fldname) {
-      return prodscan.getInt(fldname);
+      return src.getInt(fldname);
    }
 
    /**
@@ -98,7 +88,7 @@ public class MultibufferHashJoinScan implements Scan {
     * @see simpledb.query.Scan#getString(java.lang.String)
     */
    public String getString(String fldname) {
-      return prodscan.getString(fldname);
+      return src.getString(fldname);
    }
 
    /**
@@ -108,23 +98,6 @@ public class MultibufferHashJoinScan implements Scan {
     * @see simpledb.query.Scan#hasField(java.lang.String)
     */
    public boolean hasField(String fldname) {
-      return prodscan.hasField(fldname);
-   }
-
-   private boolean useNextHashPartition() {
-      if (lhsPartitions.size() > currentBucket && rhsPartitions.size() > currentBucket) {
-         if (lhsscan != null) {
-            lhsscan.close();
-            // prodscan.close();
-         }
-         lhsscan = lhsPartitions.get(currentBucket).open();
-         TempTable rhstable = rhsPartitions.get(currentBucket);
-
-         prodscan = new MultibufferJoinScan(tx, lhsscan, rhstable.tableName(), rhstable.getLayout(), pred);
-         currentBucket++;
-         return true;
-      } else {
-         return false;
-      }
+      return src.hasField(fldname);
    }
 }
