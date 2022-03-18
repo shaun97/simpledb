@@ -79,7 +79,6 @@ class TablePlanner {
       Predicate joinpred = mypred.joinSubPred(myschema, currsch);
       if (joinpred == null)
          return null;
-      System.out.println("Index Cond: (" + joinpred.toString() + ")");
       // TODO heuristics for choosing
       Plan bestplan = makeProductJoin(current, currsch);
       Plan p = makeMultibufferJoin(current, currsch);
@@ -118,7 +117,7 @@ class TablePlanner {
          Constant val = mypred.equatesWithConstant(fldname);
          if (val != null) {
             IndexInfo ii = indexes.get(fldname);
-            // System.out.println("Index using " + fldname + " on " + tblname);
+            System.out.println("Index using " + fldname + " on " + tblname);
             return new IndexSelectPlan(myplan, ii, val);
          }
       }
@@ -126,6 +125,8 @@ class TablePlanner {
    }
 
    private Plan makeIndexJoin(Plan current, Schema currsch) {
+      System.out.println(tblname);
+      System.out.println("Index Join");
       for (String fldname : indexes.keySet()) {
          String outerfield = mypred.equatesWithField(fldname);
          if (outerfield != null && currsch.hasField(outerfield)) {
@@ -144,6 +145,8 @@ class TablePlanner {
    }
 
    private Plan makeMergeJoin(Plan current, Schema currsch) {
+      System.out.println(tblname);
+      System.out.println("Sort Merge Join");
       for (String fldname : this.myschema.fields()) {
          String fldname2 = mypred.equatesWithField(fldname);
          if (fldname != null && currsch.hasField(fldname2)) {
@@ -157,6 +160,8 @@ class TablePlanner {
 
    private Plan makeMultibufferJoin(Plan current, Schema currsch) {
       Predicate joinpred = mypred.joinSubPred(currsch, myschema);
+      System.out.println(tblname);
+      System.out.println("Block Nested Join");
       System.out.println("Join Cond: (" + joinpred.toString() + ")");
       Plan p = addSelectPred(myplan); // TODO do we need?
       return new MultibufferJoinPlan(tx, current, p, joinpred);
@@ -164,6 +169,9 @@ class TablePlanner {
 
    private Plan makeMultibufferHashJoin(Plan current, Schema currsch) {
       Predicate joinpred = mypred.joinSubPred(currsch, myschema);
+      System.out.println(tblname);
+      System.out.println("Hash Join");
+      System.out.println("Join Cond: (" + joinpred.toString() + ")");
       Plan p = addSelectPred(myplan);
       return new MultibufferHashJoinPlan(tx, current, p, joinpred);
    }

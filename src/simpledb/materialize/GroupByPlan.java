@@ -43,6 +43,8 @@ public class GroupByPlan implements Plan {
       for (AggregationFn fn : aggfns)
          sch.addIntField(fn.fieldName());
 
+      System.out.println("Aggregate");
+      System.out.println("Group Key: " + Arrays.toString(groupfields.toArray()));
    }
 
    /**
