@@ -82,15 +82,24 @@ class TablePlanner {
          return null;
       System.out.println("Index Cond: (" + joinpred.toString() + ")");
       // TODO heuristics for choosing
-      Plan p = makeMultibufferHashJoin(current, currsch);
-      // Plan p = makeMultibufferJoin(current, currsch);
-      if (p == null)
-         p = makeIndexJoin(current, currsch);
-      if (p == null)
-         p = makeMergeJoin(current, currsch);
-      if (p == null)
-         p = makeProductJoin(current, currsch);
-      return p;
+      Plan bestplan = makeProductJoin(current, currsch);
+      Plan p = makeMultibufferJoin(current, currsch);
+      if (p != null && bestplan.blocksAccessed() > p.blocksAccessed()) {
+         bestplan = p;
+      }
+      p = makeIndexJoin(current, currsch);
+      if (p != null && bestplan.blocksAccessed() > p.blocksAccessed()) {
+         bestplan = p;
+      }
+      p = makeMergeJoin(current, currsch);
+      if (p != null && bestplan.blocksAccessed() > p.blocksAccessed()) {
+         bestplan = p;
+      }
+      p = makeMultibufferHashJoin(current, currsch);
+      if (p != null && bestplan.blocksAccessed() > p.blocksAccessed()) {
+         bestplan = p;
+      }  
+      return bestplan;
    }
 
    /**
@@ -183,9 +192,7 @@ class TablePlanner {
       if (joinpred != null) {
          System.out.println("Join Cond: (" + joinpred.toString() + ")");
          return new SelectPlan(p, joinpred);
-      }
-
-      else
+      } else
          return p;
    }
 }

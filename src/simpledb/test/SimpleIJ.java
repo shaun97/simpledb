@@ -39,6 +39,7 @@ public class SimpleIJ {
 	}
 
 	private static void doQuery(Planner planner, Transaction tx, String cmd) {
+		long start = System.currentTimeMillis();
 		Plan p = planner.createQueryPlan(cmd, tx);
 		Scan s = p.open();
 
@@ -77,6 +78,8 @@ public class SimpleIJ {
 				System.out.println();
 			}
 			s.close();
+			long end = System.currentTimeMillis();
+			System.out.println("time lapsed: " + (end - start) + "ms");
 		} catch (Exception e) {
 			System.out.println("Exception: " + e.getMessage());
 		}
