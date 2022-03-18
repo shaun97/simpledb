@@ -5,6 +5,7 @@ import simpledb.record.*;
 import simpledb.query.*;
 import simpledb.materialize.*;
 import simpledb.plan.Plan;
+import java.lang.*;
 
 /**
  * The Plan class for the multi-buffer version of the
@@ -68,10 +69,11 @@ public class MultibufferJoinPlan implements Plan {
     * @see simpledb.plan.Plan#blocksAccessed()
     */
    public int blocksAccessed() {
+      // left inner, right outer
       // this guesses at the # of chunks
       int avail = tx.availableBuffs();
       int size = new MaterializePlan(tx, rhs).blocksAccessed();
-      int numchunks = size / avail;
+      int numchunks = (int) Math.ceil(size / avail);
       return rhs.blocksAccessed() +
             (lhs.blocksAccessed() * numchunks);
    }

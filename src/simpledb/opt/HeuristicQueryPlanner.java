@@ -32,7 +32,6 @@ public class HeuristicQueryPlanner implements QueryPlanner {
 	 * results in the smallest output.
 	 */
 	public Plan createPlan(QueryData data, Transaction tx) {
-
 		// Step 1: Create a TablePlanner object for each mentioned table
 		for (String tblname : data.tables()) {
 			TablePlanner tp = new TablePlanner(tblname, data.pred(), tx, mdm);
@@ -51,8 +50,7 @@ public class HeuristicQueryPlanner implements QueryPlanner {
 				currentplan = getLowestProductPlan(currentplan);
 		}
 
-		// TODO Test -- further test this cause groupby can be used without aggregate
-		// function
+		// agg function
 		if (data.aggFns().size() != 0)
 			currentplan = new GroupByPlan(tx, currentplan, data.groupFields(), data.aggFns());
 

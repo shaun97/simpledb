@@ -173,9 +173,7 @@ class TablePlanner {
       if (joinpred != null) {
          System.out.println("Join Cond: (" + joinpred.toString() + ")");
          return new SelectPlan(p, joinpred);
-      }
-
-      else
+      } else
          return p;
    }
 }
