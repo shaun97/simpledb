@@ -50,7 +50,6 @@ public class MultibufferHashJoinPlan implements Plan {
     * @see simpledb.plan.Plan#open()
     */
    public Scan open() {
-
       Scan leftscan = lhs.open();
       Scan rightscan = rhs.open();
       // TODO Will incur i/o might need to change

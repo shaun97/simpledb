@@ -59,6 +59,9 @@ public class MultibufferJoinScan implements Scan {
     * @see simpledb.query.Scan#next()
     */
    public boolean next() {
+      // empty table
+      if (prodselectscan == null)
+         return false;
       while (!prodselectscan.next())
          if (!useNextChunk())
             return false;
@@ -71,6 +74,8 @@ public class MultibufferJoinScan implements Scan {
     * @see simpledb.query.Scan#close()
     */
    public void close() {
+      if (prodselectscan == null)
+         return;
       prodselectscan.close();
    }
 

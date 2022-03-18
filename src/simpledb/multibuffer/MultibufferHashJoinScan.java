@@ -41,9 +41,7 @@ public class MultibufferHashJoinScan implements Scan {
     */
    public void beforeFirst() {
       currentBucket = 0;
-      lhsscan = lhsPartitions.get(currentBucket).open();
-      TempTable rhstable = rhsPartitions.get(currentBucket);
-      prodscan = new MultibufferJoinScan(tx, lhsscan, rhstable.tableName(), rhstable.getLayout(), pred);
+      useNextHashPartition();
    }
 
    /**
@@ -68,7 +66,6 @@ public class MultibufferHashJoinScan implements Scan {
     * @see simpledb.query.Scan#close()
     */
    public void close() {
-      lhsscan.close();
       prodscan.close();
    }
 
@@ -116,12 +113,12 @@ public class MultibufferHashJoinScan implements Scan {
    }
 
    private boolean useNextHashPartition() {
-      if (lhsPartitions.size() - 1 > currentBucket && rhsPartitions.size() - 1 > currentBucket) {
-         lhsscan.close();
-         currentBucket++;
-         lhsscan = lhsPartitions.get(currentBucket).open();
-         TempTable rhstable = rhsPartitions.get(currentBucket);
+      if (lhsPartitions.size() > currentBucket && rhsPartitions.size() > currentBucket) {
+         lhsscan = rhsPartitions.get(currentBucket).open();
+         TempTable rhstable = lhsPartitions.get(currentBucket);
          prodscan = new MultibufferJoinScan(tx, lhsscan, rhstable.tableName(), rhstable.getLayout(), pred);
+         currentBucket++;
+         lhsscan.close();
          return true;
       } else {
          return false;
