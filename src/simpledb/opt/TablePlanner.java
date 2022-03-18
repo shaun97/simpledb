@@ -9,6 +9,7 @@ import simpledb.index.planner.*;
 import simpledb.materialize.MergeJoinPlan;
 import simpledb.multibuffer.MultibufferProductPlan;
 import simpledb.multibuffer.MultibufferJoinPlan;
+import simpledb.multibuffer.MultibufferHashJoinPlan;
 import simpledb.plan.*;
 
 /**
@@ -41,7 +42,7 @@ class TablePlanner {
       myplan = new TablePlan(tx, tblname, mdm);
       myschema = myplan.schema();
       indexes = mdm.getIndexInfo(tblname, tx);
-      this.tblname  = tblname;
+      this.tblname = tblname;
    }
 
    /**
@@ -72,8 +73,10 @@ class TablePlanner {
       Predicate joinpred = mypred.joinSubPred(myschema, currsch);
       if (joinpred == null)
          return null;
+      System.out.println("Index Cond: (" + joinpred.toString() + ")");
       // TODO heuristics for choosing
-      Plan p = makeMultibufferJoin(current, currsch);
+      Plan p = makeMultibufferHashJoin(current, currsch);
+      // Plan p = makeMultibufferJoin(current, currsch);
       if (p == null)
          p = makeIndexJoin(current, currsch);
       if (p == null)
@@ -100,7 +103,7 @@ class TablePlanner {
          Constant val = mypred.equatesWithConstant(fldname);
          if (val != null) {
             IndexInfo ii = indexes.get(fldname);
-            System.out.println("Index using " + fldname + " on " + tblname);
+            // System.out.println("Index using " + fldname + " on " + tblname);
             return new IndexSelectPlan(myplan, ii, val);
          }
       }
@@ -139,28 +142,33 @@ class TablePlanner {
 
    private Plan makeMultibufferJoin(Plan current, Schema currsch) {
       Predicate joinpred = mypred.joinSubPred(currsch, myschema);
-      System.out.println("Join Cond: (" +  joinpred.toString() + ")");
+      System.out.println("Join Cond: (" + joinpred.toString() + ")");
       Plan p = addSelectPred(myplan); // TODO do we need?
       return new MultibufferJoinPlan(tx, current, p, joinpred);
+   }
+
+   private Plan makeMultibufferHashJoin(Plan current, Schema currsch) {
+      Predicate joinpred = mypred.joinSubPred(currsch, myschema);
+      Plan p = addSelectPred(myplan);
+      return new MultibufferHashJoinPlan(tx, current, p, joinpred);
    }
 
    private Plan addSelectPred(Plan p) {
       Predicate selectpred = mypred.selectSubPred(myschema);
       if (selectpred != null) {
-         System.out.println("Select Cond: (" +  selectpred.toString() + ")");
+         System.out.println("Select Cond: (" + selectpred.toString() + ")");
          return new SelectPlan(p, selectpred);
-      }
-      else
+      } else
          return p;
    }
 
    private Plan addJoinPred(Plan p, Schema currsch) {
       Predicate joinpred = mypred.joinSubPred(currsch, myschema);
       if (joinpred != null) {
-         System.out.println("Join Cond: (" +  joinpred.toString() + ")");
+         System.out.println("Join Cond: (" + joinpred.toString() + ")");
          return new SelectPlan(p, joinpred);
       }
-         
+
       else
          return p;
    }

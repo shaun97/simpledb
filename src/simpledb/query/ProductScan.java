@@ -3,6 +3,7 @@ package simpledb.query;
 /**
  * The scan class corresponding to the <i>product</i> relational
  * algebra operator.
+ * 
  * @author Edward Sciore
  */
 public class ProductScan implements Scan {
@@ -11,6 +12,7 @@ public class ProductScan implements Scan {
 
    /**
     * Create a product scan having the two underlying scans.
+    * 
     * @param s1 the LHS scan
     * @param s2 the RHS scan
     */
@@ -22,25 +24,29 @@ public class ProductScan implements Scan {
 
    /**
     * Position the scan before its first record.
-    * In particular, the LHS scan is positioned at 
+    * In particular, the LHS scan is positioned at
     * its first record, and the RHS scan
     * is positioned before its first record.
+    * 
     * @see simpledb.query.Scan#beforeFirst()
     */
    public void beforeFirst() {
-	   shouldScan = canScan();
-      s1.beforeFirst(); 
+      shouldScan = canScan();
+      s1.beforeFirst();
       s1.next();
       s2.beforeFirst();
    }
-   
+
    public boolean canScan() {
-	   s1.beforeFirst();
-	   s2.beforeFirst();
-	   if (!s1.next() || !s2.next()) {
-		   return false;
-	   }
-	   return true;
+      s1.beforeFirst();
+      s2.beforeFirst();
+      if (!s1.next()) {
+         return false;
+      }
+      if (!s2.next()) {
+         return false;
+      }
+      return true;
    }
 
    /**
@@ -49,12 +55,13 @@ public class ProductScan implements Scan {
     * Otherwise, it moves to the next LHS record and the
     * first RHS record.
     * If there are no more LHS records, the method returns false.
+    * 
     * @see simpledb.query.Scan#next()
     */
    public boolean next() {
       if (!shouldScan) {
-		  return false;
-	   }
+         return false;
+      }
       if (s2.next())
          return true;
       else {
@@ -63,10 +70,11 @@ public class ProductScan implements Scan {
       }
    }
 
-   /** 
+   /**
     * Return the integer value of the specified field.
     * The value is obtained from whichever scan
     * contains the field.
+    * 
     * @see simpledb.query.Scan#getInt(java.lang.String)
     */
    public int getInt(String fldname) {
@@ -76,10 +84,11 @@ public class ProductScan implements Scan {
          return s2.getInt(fldname);
    }
 
-   /** 
+   /**
     * Returns the string value of the specified field.
     * The value is obtained from whichever scan
     * contains the field.
+    * 
     * @see simpledb.query.Scan#getString(java.lang.String)
     */
    public String getString(String fldname) {
@@ -89,10 +98,11 @@ public class ProductScan implements Scan {
          return s2.getString(fldname);
    }
 
-   /** 
+   /**
     * Return the value of the specified field.
     * The value is obtained from whichever scan
     * contains the field.
+    * 
     * @see simpledb.query.Scan#getVal(java.lang.String)
     */
    public Constant getVal(String fldname) {
@@ -105,6 +115,7 @@ public class ProductScan implements Scan {
    /**
     * Returns true if the specified field is in
     * either of the underlying scans.
+    * 
     * @see simpledb.query.Scan#hasField(java.lang.String)
     */
    public boolean hasField(String fldname) {
@@ -113,6 +124,7 @@ public class ProductScan implements Scan {
 
    /**
     * Close both underlying scans.
+    * 
     * @see simpledb.query.Scan#close()
     */
    public void close() {

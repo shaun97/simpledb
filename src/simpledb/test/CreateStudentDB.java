@@ -27,7 +27,7 @@ public class CreateStudentDB {
 			// System.out.println("Indexing majorid");
 
 			cmd = "insert into STUDENT(SId, SName, MajorId, GradYear) values ";
-			String[] studvals = { 
+			String[] studvals = {
 					"(6, 'kim', 20, 2020)",
 					"(7, 'art', 30, 2021)",
 					"(8, 'pat', 20, 2019)",
@@ -36,7 +36,7 @@ public class CreateStudentDB {
 					"(2, 'amy', 20, 2020)",
 					"(3, 'max', 10, 2022)",
 					"(4, 'sue', 20, 2022)",
-					"(5, 'bob', 30, 2020)",};
+					"(5, 'bob', 30, 2020)", };
 			for (int i = 0; i < studvals.length; i++)
 				planner.executeUpdate(cmd + studvals[i], tx);
 			System.out.println("STUDENT records inserted.");
@@ -100,13 +100,13 @@ public class CreateStudentDB {
 					"(34, 2, 43, 'B+')",
 					"(44, 4, 33, 'B' )",
 					"(54, 4, 53, 'A' )",
-					"(64, 6, 53, 'A' )", 
+					"(64, 6, 53, 'A' )",
 					"(74, 3, 13, 'A')",
 					"(84, 3, 43, 'C' )",
 					"(94, 5, 43, 'B+')",
 					"(104, 7, 33, 'B' )",
 					"(114, 7, 53, 'A' )",
-					"(124, 8, 53, 'A' )"  };
+					"(124, 8, 53, 'A' )" };
 			for (int i = 0; i < enrollvals.length; i++)
 				planner.executeUpdate(cmd + enrollvals[i], tx);
 			System.out.println("ENROLL records inserted.");

@@ -3,6 +3,10 @@ package simpledb.multibuffer;
 import simpledb.tx.Transaction;
 import simpledb.query.*;
 import simpledb.record.*;
+import simpledb.multibuffer.MultibufferProductScan;
+import simpledb.materialize.*;
+import java.util.*;
+import simpledb.plan.Plan;
 
 /**
  * The Scan class for the multi-buffer version of the
@@ -10,30 +14,14 @@ import simpledb.record.*;
  * 
  * @author Edward Sciore
  */
-public class MultibufferJoinScan implements Scan {
+public class MultibufferHashJoinScan implements Scan {
    private Transaction tx;
-   private Scan lhsscan, rhsscan = null, prodscan, prodselectscan;
-   private String filename;
-   private Layout layout;
-   private int chunksize, nextblknum, filesize;
-   private Predicate pred;
+   private Scan src;
 
-   /**
-    * Creates the scan class for the product of the LHS scan and a table.
-    * 
-    * @param lhsscan the LHS scan
-    * @param layout  the metadata for the RHS table
-    * @param tx      the current transaction
-    */
-   public MultibufferJoinScan(Transaction tx, Scan lhsscan, String tblname, Layout layout, Predicate pred) {
+
+   public MultibufferHashJoinScan(Transaction tx, Scan src) {
       this.tx = tx;
-      this.lhsscan = lhsscan;
-      this.filename = tblname + ".tbl";
-      this.layout = layout;
-      this.pred = pred;
-      filesize = tx.size(filename);
-      int available = tx.availableBuffs();
-      chunksize = BufferNeeds.bestFactor(available, filesize);
+      this.src = src;
       beforeFirst();
    }
 
@@ -41,12 +29,11 @@ public class MultibufferJoinScan implements Scan {
     * Positions the scan before the first record.
     * That is, the LHS scan is positioned at its first record,
     * and the RHS scan is positioned before the first record of the first chunk.
-    * 
+    *
     * @see simpledb.query.Scan#beforeFirst()
     */
    public void beforeFirst() {
-      nextblknum = 0;
-      useNextChunk();
+      src.beforeFirst();
    }
 
    /**
@@ -55,39 +42,31 @@ public class MultibufferJoinScan implements Scan {
     * then move to the next LHS record and the beginning of that chunk.
     * If there are no more LHS records, then move to the next chunk
     * and begin again.
-    * 
+    *
     * @see simpledb.query.Scan#next()
     */
    public boolean next() {
-      // empty table
-      if (prodselectscan == null)
-         return false;
-      while (!prodselectscan.next())
-         if (!useNextChunk())
-            return false;
-      return true;
+      return src.next();
    }
 
    /**
     * Closes the current scans.
-    * 
+    *
     * @see simpledb.query.Scan#close()
     */
    public void close() {
-      if (prodselectscan == null)
-         return;
-      prodselectscan.close();
+      src.close();
    }
 
    /**
     * Returns the value of the specified field.
     * The value is obtained from whichever scan
     * contains the field.
-    * 
+    *
     * @see simpledb.query.Scan#getVal(java.lang.String)
     */
    public Constant getVal(String fldname) {
-      return prodselectscan.getVal(fldname);
+      return src.getVal(fldname);
    }
 
    /**
@@ -98,7 +77,7 @@ public class MultibufferJoinScan implements Scan {
     * @see simpledb.query.Scan#getInt(java.lang.String)
     */
    public int getInt(String fldname) {
-      return prodselectscan.getInt(fldname);
+      return src.getInt(fldname);
    }
 
    /**
@@ -109,7 +88,7 @@ public class MultibufferJoinScan implements Scan {
     * @see simpledb.query.Scan#getString(java.lang.String)
     */
    public String getString(String fldname) {
-      return prodselectscan.getString(fldname);
+      return src.getString(fldname);
    }
 
    /**
@@ -119,22 +98,6 @@ public class MultibufferJoinScan implements Scan {
     * @see simpledb.query.Scan#hasField(java.lang.String)
     */
    public boolean hasField(String fldname) {
-      return prodselectscan.hasField(fldname);
-   }
-
-   private boolean useNextChunk() {
-      if (nextblknum >= filesize) // first tuple of the block
-         return false;
-      if (rhsscan != null)
-         rhsscan.close();
-      int end = nextblknum + chunksize - 1; // getting the end tuple of the block
-      if (end >= filesize) // if
-         end = filesize - 1;
-      rhsscan = new ChunkScan(tx, filename, layout, nextblknum, end); // outer that gets chunked
-      lhsscan.beforeFirst(); // smaller table 1 buffer one
-      prodscan = new ProductScan(lhsscan, rhsscan);
-      prodselectscan = new SelectScan(prodscan, pred);
-      nextblknum = end + 1;
-      return true;
+      return src.hasField(fldname);
    }
 }
