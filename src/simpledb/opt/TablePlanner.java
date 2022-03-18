@@ -43,7 +43,6 @@ class TablePlanner {
       myschema = myplan.schema();
       indexes = mdm.getIndexInfo(tblname, tx);
       this.tblname = tblname;
-      System.out.println("Scan on " + tblname);
    }
 
    /**
@@ -80,7 +79,6 @@ class TablePlanner {
       Predicate joinpred = mypred.joinSubPred(myschema, currsch);
       if (joinpred == null)
          return null;
-      System.out.println("Index Cond: (" + joinpred.toString() + ")");
       // TODO heuristics for choosing
       Plan bestplan = makeProductJoin(current, currsch);
       Plan p = makeMultibufferJoin(current, currsch);
