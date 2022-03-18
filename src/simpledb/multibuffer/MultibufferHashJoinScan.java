@@ -114,11 +114,14 @@ public class MultibufferHashJoinScan implements Scan {
 
    private boolean useNextHashPartition() {
       if (lhsPartitions.size() > currentBucket && rhsPartitions.size() > currentBucket) {
+         if (lhsscan != null)
+            lhsscan.close();
          lhsscan = rhsPartitions.get(currentBucket).open();
          TempTable rhstable = lhsPartitions.get(currentBucket);
-         prodscan = new MultibufferJoinScan(tx, lhsscan, rhstable.tableName(), rhstable.getLayout(), pred);
+         // prodscan = new MultibufferJoinScan(tx, lhsscan, rhstable.tableName(),
+         // rhstable.getLayout(), pred);
+         prodscan = new MultibufferProductScan(tx, lhsscan, rhstable.tableName(), rhstable.getLayout());
          currentBucket++;
-         lhsscan.close();
          return true;
       } else {
          return false;

@@ -30,7 +30,7 @@ public class MultibufferHashJoinPlan implements Plan {
     */
    public MultibufferHashJoinPlan(Transaction tx, Plan lhs, Plan rhs, Predicate pred) {
       this.tx = tx;
-      this.lhs = new MaterializePlan(tx, lhs);
+      this.lhs = lhs;
       this.rhs = rhs;
       this.pred = pred;
       schema.addAll(lhs.schema());
@@ -58,7 +58,7 @@ public class MultibufferHashJoinPlan implements Plan {
       k = tx.availableBuffs() - 1;
       // Check if k rhs is no more than k blocks
       if (filesize < k) {
-         System.out.println("no need buffer filesize:" + filesize);
+         System.out.println("no need buffer filesize: " + filesize);
          Scan prodscan = new MultibufferProductScan(tx, leftscan, ttr.tableName(), ttr.getLayout());
          return new SelectScan(prodscan, pred);
       }
@@ -93,6 +93,7 @@ public class MultibufferHashJoinPlan implements Plan {
       // Create all the buckets
       for (int i = 0; i < k; i++) {
          TempTable currenttemp = new TempTable(tx, schema);
+         System.out.println(currenttemp.tableName());
          temps.add(currenttemp);
       }
 
@@ -109,6 +110,7 @@ public class MultibufferHashJoinPlan implements Plan {
       while (src.next()) {
          int valToHash = src.getVal(hashFldName).asInt();
          int hash = hashFn(valToHash, k);
+         // System.out.println("hashing to bucket: " + hash);
          UpdateScan tempScan = temps.get(hash).open();
          copy(src, tempScan, hashSch);
          tempScan.close();
@@ -119,7 +121,7 @@ public class MultibufferHashJoinPlan implements Plan {
 
    private String getHashFldName(Schema hashSch, Predicate hashPred) {
       for (String fldname : hashSch.fields()) {
-         if (pred.equatesWithField(fldname) != null) {
+         if (hashPred.equatesWithField(fldname) != null) {
             return fldname;
          }
       }
@@ -209,7 +211,8 @@ public class MultibufferHashJoinPlan implements Plan {
 
    private void copy(Scan src, UpdateScan dest, Schema scanSch) {
       dest.insert();
-      for (String fldname : scanSch.fields())
+      for (String fldname : scanSch.fields()) {
          dest.setVal(fldname, src.getVal(fldname));
+      }
    }
 }
