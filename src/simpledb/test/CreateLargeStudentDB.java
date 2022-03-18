@@ -68,6 +68,8 @@ public class CreateLargeStudentDB {
 			cmd = "create table DEPT(DId int, DName varchar(8))";
 			planner.executeUpdate(cmd, tx);
 			System.out.println("DEPT records inserted.");
+			
+			cmd = "create index did on DEPT(did) using btree";
 
 			cmd = "insert into DEPT(DId, DName) values ";
 			String[] deptvals = { "(10, 'compsci')",
@@ -87,6 +89,8 @@ public class CreateLargeStudentDB {
 			cmd = "create table COURSE(CId int, Title varchar(20), DeptId int)";
 			planner.executeUpdate(cmd, tx);
 			System.out.println("Table COURSE created.");
+
+			cmd = "create index DeptId on COURSE(DeptId) using btree";
 
 			cmd = "insert into COURSE(CId, Title, DeptId) values ";
 			String[] coursevals = {
