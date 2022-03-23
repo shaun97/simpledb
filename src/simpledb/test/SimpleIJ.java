@@ -15,7 +15,7 @@ public class SimpleIJ {
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 
-		SimpleDB db = new SimpleDB("studentdblarge");
+		SimpleDB db = new SimpleDB("studentdb4way");
 		Transaction tx = db.newTx();
 		Planner planner = db.planner();
 		try {
