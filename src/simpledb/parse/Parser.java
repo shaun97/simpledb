@@ -105,20 +105,19 @@ public class Parser {
          lex.eatKeyword("where");
          pred = predicate();
       }
-      if (lex.matchKeyword("order")) {
-         lex.eatKeyword("order");
-         if (lex.matchKeyword("by")) {
-            lex.eatKeyword("by");
-         }
-         orderInfos = orderList();
-      }
-
       if (lex.matchKeyword("group")) {
          lex.eatKeyword("group");
          if (lex.matchKeyword("by")) {
             lex.eatKeyword("by");
          }
          groupByInfos = selectList();
+      }
+      if (lex.matchKeyword("order")) {
+         lex.eatKeyword("order");
+         if (lex.matchKeyword("by")) {
+            lex.eatKeyword("by");
+         }
+         orderInfos = orderList();
       }
 
       return new QueryData(fields, tables, pred, orderInfos, groupByInfos, aggFnsInfo, isDistinct);

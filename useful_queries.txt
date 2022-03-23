@@ -45,3 +45,53 @@ select dname, did, title from course, dept where did < deptid
       3        max     30    drama       32             calculus     C
       6        kim     30    drama       32             calculus     A
       5        bob     30    drama       62            elocution    B+
+
+      // To check for Join functions.
+select sid, sname, majorid, gradyear from student, dept where majorid = did
+
+select title, deptid, dname from course, dept on deptid = did
+
+select title, deptid, dname from course join dept on did = deptid
+
+select dname, did, title from course, dept where did = deptid
+
+select sid from student where sid < 5
+
+select dname, did, title from course, dept where did < deptid
+
+
+
+
+
+
+// normal retrieval (sid is indexed)
+select sname, majorid, gradyear from student
+
+// index retrieval
+select sid, sname, majorid, gradyear from student
+
+// predicates
+select sid, sname, majorid, gradyear from student where sid = 5
+select sid, sname, majorid, gradyear from student where sid <= 10
+select sid, sname, majorid, gradyear from student where sid <= 10 and majorid >= 20
+select sid, sname, majorid, gradyear from student where sid >= 10
+
+// order by single field
+select sid, sname, majorid, gradyear from student where sid < 10 order by gradyear asc
+select sid, sname, majorid, gradyear from student where sid < 10 order by gradyear desc
+
+// order by two fields
+select sid, sname, majorid, gradyear from student where sid < 10 order by gradyear desc, sname
+
+// group by
+select count(sid) from student
+select max(sid) from student
+select min(sid) from student
+select sum(sid) from student where sid <= 10
+select distinct gradyear from student
+select count(sid), avg(gradyear) from student group by gradyear
+
+// distinct (might need another table)
+select distinct sid, sname, majorid, gradyear from student
+select distinct majorid, gradyear from student
+select distinct gradyear from student
