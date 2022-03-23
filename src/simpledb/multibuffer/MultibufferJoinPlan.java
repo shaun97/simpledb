@@ -66,4 +66,9 @@ public class MultibufferJoinPlan implements Plan {
       dest.close();
       return t;
    }
+
+   @Override
+   public String toString() {
+      return "Block Nested Join";
+   }
 }

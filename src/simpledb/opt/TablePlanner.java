@@ -83,35 +83,24 @@ class TablePlanner {
       Plan bestplan = makeProductJoin(current, currsch);
       Plan p = makeMultibufferJoin(current, currsch);
       if (p != null && bestplan.blocksAccessed() > p.blocksAccessed()) {
-    	   System.out.print(tblname);
- 	      System.out.println(" Block Nested Join");
- 	      System.out.println("Join Cond: (" + joinpred.toString() + ")");
          bestplan = p;
       }
       p = makeIndexJoin(current, currsch);
       if (p != null && bestplan.blocksAccessed() > p.blocksAccessed()) {
-    	   System.out.print(tblname);
-         System.out.println(" Index Join");
-         System.out.println("Join Cond: (" + joinpred.toString() + ")");
          bestplan = p;
       }
       p = makeMergeJoin(current, currsch);
       if (p != null && bestplan.blocksAccessed() > p.blocksAccessed()) {
-    	   System.out.print(tblname);
-         System.out.println(" Sort Merge Join");
-         System.out.println("Join Cond: (" + joinpred.toString() + ")");
          bestplan = p;
       }
       p = makeMultibufferHashJoin(current, currsch);
       if (p != null && bestplan.blocksAccessed() > p.blocksAccessed()) {
-    	   System.out.print(tblname);
-         System.out.println(" Hash Join");
-         System.out.println("Join Cond: (" + joinpred.toString() + ")");
          bestplan = p;
       }  
-         System.out.print(tblname);
-         System.out.println(" Cross Join");
-         System.out.println("Join Cond: (" + joinpred.toString() + ")");
+      System.out.print(tblname + " ");
+      System.out.println(bestplan.toString());
+	   System.out.println("Join Cond: (" + joinpred.toString() + ")");
+
       return bestplan;
    }
 
@@ -187,7 +176,7 @@ class TablePlanner {
       Predicate selectpred = mypred.selectSubPred(myschema);
       if (selectpred != null) {
          System.out.println("Select Cond: (" + selectpred.toString() + ")");
-         return new SelectPlan(p, selectpred);
+         return new SelectPlan(p, selectpred, p.toString());
       } else
          return p;
    }
@@ -195,7 +184,7 @@ class TablePlanner {
    private Plan addJoinPred(Plan p, Schema currsch) {
       Predicate joinpred = mypred.joinSubPred(currsch, myschema);
       if (joinpred != null) { 
-         return new SelectPlan(p, joinpred);
+         return new SelectPlan(p, joinpred, p.toString());
       } else
          return p;
    }

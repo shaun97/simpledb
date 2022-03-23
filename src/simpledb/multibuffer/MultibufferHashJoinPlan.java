@@ -166,5 +166,11 @@ public class MultibufferHashJoinPlan implements Plan {
          dest.setVal(fldname, src.getVal(fldname));
       }
       return src.next();
+      
+   }
+
+   @Override
+   public String toString() {
+      return "Hash Join";
    }
 }

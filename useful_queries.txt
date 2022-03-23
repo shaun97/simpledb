@@ -11,7 +11,8 @@ select sid from student where sid < 5
 
 select dname, did, title from course, dept where did < deptid
 
- select sname, did, dname, title, cid, grade where majorid = did and did = deptID
+select sname, did, dname, title, cid, grade where majorid = did and did = deptID
+
 
  select sid, sname, did, dname, courseID, title, grade from gradstudent, graddept, gradenroll, gradcourse where majorID = did and studentID = sid and courseID = cid 
     sid      sname    did    dname courseid                title grade
@@ -76,23 +77,6 @@ select dname, did, title from course, dept where did < deptid
       7       john     10  compsci       62            elocution     B
       7       john     10  compsci       52               acting     A
 
-      // To check for Join functions.
-select sid, sname, majorid, gradyear from student, dept where majorid = did
-
-select title, deptid, dname from course, dept on deptid = did
-
-select title, deptid, dname from course join dept on did = deptid
-
-select dname, did, title from course, dept where did = deptid
-
-select sid from student where sid < 5
-
-select dname, did, title from course, dept where did < deptid
-
-
-
-
-
 
 // normal retrieval (sid is indexed)
 select sname, majorid, gradyear from student
@@ -125,3 +109,19 @@ select count(sid), avg(gradyear) from student group by gradyear
 select distinct sid, sname, majorid, gradyear from student
 select distinct majorid, gradyear from student
 select distinct gradyear from student
+
+
+// 2 Table Join
+select sname, grade from student, enroll where sid = studentid and sid < 5
+select sname from student, enroll where sid = studentid and sname = 'bob'
+
+select sname, grade, courseid from gradstudent, gradenroll where sid = studentid
+select title from gradcourse, graddept where deptid = did
+
+
+// order by single field
+select sname, gradyear from gradstudent, gradenroll where sid = studentid order by gradyear
+
+// order by two fields
+select sid, sname, gradyear from gradstudent, gradenroll where sid = studentid order by gradyear asc, sid desc
+select cid, title, did, dname from gradcourse, graddept where deptid = did order by did asc, cid asc

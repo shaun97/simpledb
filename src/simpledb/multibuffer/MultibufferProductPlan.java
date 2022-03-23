@@ -126,4 +126,9 @@ public class MultibufferProductPlan implements Plan {
       dest.close();
       return t;
    }
+   
+   @Override 
+   public String toString() {
+	 return "Cross Join";
+   }
 }

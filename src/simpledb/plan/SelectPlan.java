@@ -12,6 +12,7 @@ import simpledb.record.Schema;
 public class SelectPlan implements Plan {
    private Plan p;
    private Predicate pred;
+   private String type = null;
    
    /**
     * Creates a new select node in the query tree,
@@ -22,6 +23,12 @@ public class SelectPlan implements Plan {
    public SelectPlan(Plan p, Predicate pred) {
       this.p = p;
       this.pred = pred;
+   }
+   
+   public SelectPlan(Plan p, Predicate pred, String type) {
+	   this.p = p;
+	   this.pred = pred;
+	   this.type = type;
    }
    
    /**
@@ -82,5 +89,10 @@ public class SelectPlan implements Plan {
     */
    public Schema schema() {
       return p.schema();
+   }
+   
+   @Override
+   public String toString() {
+	   return type;
    }
 }
