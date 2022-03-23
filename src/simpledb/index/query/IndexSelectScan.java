@@ -26,6 +26,7 @@ public class IndexSelectScan implements Scan {
       this.idx = idx;
       this.val = val;
       beforeFirst();
+      System.out.println("Index Select Scan")
    }
    
    /**
