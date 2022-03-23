@@ -23,6 +23,9 @@ select dname, did, title from course, dept where did < deptid
       7       john     30    drama       52               acting     A
       5        bob     30    drama       62            elocution    B+
 
+ select distinct sid, sname, did from gradstudent, graddept, gradenroll, gradcourse where majorID = did and studentID = sid and courseID = cid 
+
+
  select sid, sname, did, dname, courseID, title, grade from gradstudent, graddept, gradenroll, gradcourse where studentID = sid and courseID = cid 
 
      sid      sname    did    dname courseid                title grade
