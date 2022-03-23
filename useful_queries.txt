@@ -46,6 +46,28 @@ select dname, did, title from course, dept where did < deptid
       6        kim     30    drama       32             calculus     A
       5        bob     30    drama       62            elocution    B+
 
+ select sid, sname, did, dname, courseID, title, grade from gradstudent, graddept, gradenroll, gradcourse where studentID = sid and courseID = cid order by sid
+    sid      sname    did    dname courseid                title grade
+----------------------------------------------------------------------
+      3        max     30    drama       22            compilers     A
+      3        max     30    drama       32             calculus     C
+      3        max     20     math       22            compilers     A
+      3        max     20     math       32             calculus     C
+      3        max     10  compsci       22            compilers     A
+      3        max     10  compsci       32             calculus     C
+      5        bob     30    drama       62            elocution    B+
+      5        bob     20     math       62            elocution    B+
+      5        bob     10  compsci       62            elocution    B+
+      6        kim     30    drama       32             calculus     A
+      6        kim     20     math       32             calculus     A
+      6        kim     10  compsci       32             calculus     A
+      7       john     30    drama       62            elocution     B
+      7       john     30    drama       52               acting     A
+      7       john     20     math       62            elocution     B
+      7       john     20     math       52               acting     A
+      7       john     10  compsci       62            elocution     B
+      7       john     10  compsci       52               acting     A
+
       // To check for Join functions.
 select sid, sname, majorid, gradyear from student, dept where majorid = did
 
